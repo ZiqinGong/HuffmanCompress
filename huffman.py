@@ -1,5 +1,6 @@
 import json
 import struct
+import tqdm
 
 
 def _write_byte(data, fp):
@@ -94,10 +95,12 @@ def encode(path: str):
     handle.write(codebook)
 
     # Encode
+    pbar = tqdm.tqdm(total=f.tell(), unit_scale=True)
     f.seek(0)
     s = f.read(1)
     data = ''
     while s != '':
+        pbar.update(1)
         hfc = hfcode[s]
         data = data + hfc
         data = _write_byte(data, handle)
@@ -105,8 +108,10 @@ def encode(path: str):
 
     while len(data) > 0 and len(data) < 8:
         data += '0' * (8 - len(data))
-    handle.write(struct.pack('B', int(data, base=2)))
+    if len(data) == 8:
+        handle.write(struct.pack('B', int(data, base=2)))
 
+    pbar.close()
     handle.close()
     f.close()
 
@@ -130,6 +135,7 @@ def decode(path: str):
     codebook = dict([(value, key) for key, value in codebook.items()])
 
     # Decode
+    pbar = tqdm.tqdm(total=file_len, unit_scale=True)
     decoded = open(path[:-3] + '_unzipped.' + filetype, 'w')
     buffer = _byte_to_bit(to_be_decoded.read(1))
     decode_num = 0
@@ -146,9 +152,11 @@ def decode(path: str):
 
         decoded.write(codebook[s])
         decode_num += 1
+        pbar.update(1)
         buffer = buffer[i:]
         i = 1
 
+    pbar.close()
     decoded.close()
     to_be_decoded.close()
 
