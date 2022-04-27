@@ -107,14 +107,15 @@ def encode(path: str):
         data += '0' * (8 - len(data))
     handle.write(struct.pack('B', int(data, base=2)))
 
-    # with open(path.split('.')[0] + '.json', 'w') as js:
-    #     json.dump(hfcode, fp=js, separators=(',',':'))
-
     handle.close()
     f.close()
 
 def decode(path: str):
     """Decode given .hf file."""
+    # Report error if file type is not .hf
+    if path.split('.')[1] != 'hf':
+        raise NameError
+
     to_be_decoded = open(path, 'rb')
 
     # Get length of codebook
