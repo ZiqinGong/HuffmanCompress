@@ -18,6 +18,6 @@ To uncompress(decode) a file, use the option `-d` or `--decode`.
 
 You can also read this guidance using the option `-h` or `--help`.
 
-## Support File Types
+## Supported File Types
 
 Not so many of them, maybe just text files like `*.txt`, `*.py`, `*.md` etc.
