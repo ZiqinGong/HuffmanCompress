@@ -1,6 +1,7 @@
 import json
 import struct
-import tqdm
+import sys
+from tqdm import tqdm
 
 
 def _write_byte(data, fp):
@@ -25,6 +26,7 @@ def encode(path: str):
     f = open(path)
 
     # Count the frequency of each symbol appearing in the file
+    print("\nRead %s..." % path)
     sym_freq = dict()
     s = f.read(1)
     while s != '':
@@ -45,7 +47,7 @@ def encode(path: str):
 
     # Build Huffman tree
     for i in range(size - 1, 0, -1):
-        min1 = min2 = int(1e6)
+        min1 = min2 = sys.maxsize
         i1 = i2 = 0
 
         for j in range(i + 1, length):
@@ -95,7 +97,8 @@ def encode(path: str):
     handle.write(codebook)
 
     # Encode
-    pbar = tqdm.tqdm(total=f.tell(), unit_scale=True)
+    print("Encoding...")
+    pbar = tqdm(total=f.tell(), unit_scale=True)
     f.seek(0)
     s = f.read(1)
     data = ''
@@ -114,6 +117,7 @@ def encode(path: str):
     pbar.close()
     handle.close()
     f.close()
+    print("File %s has been encoded successfully!\n" % path)
 
 def decode(path: str):
     """Decode given .hf file."""
@@ -135,7 +139,8 @@ def decode(path: str):
     codebook = dict([(value, key) for key, value in codebook.items()])
 
     # Decode
-    pbar = tqdm.tqdm(total=file_len, unit_scale=True)
+    print("\nDecoding...")
+    pbar = tqdm(total=file_len, unit_scale=True)
     decoded = open(path[:-3] + '_unzipped.' + filetype, 'w')
     buffer = _byte_to_bit(to_be_decoded.read(1))
     decode_num = 0
@@ -159,6 +164,7 @@ def decode(path: str):
     pbar.close()
     decoded.close()
     to_be_decoded.close()
+    print("File %s has been decoded successfully!\n" % path)
 
 
 if __name__ == '__main__':
